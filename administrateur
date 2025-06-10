@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Page Inscription</title>
+  <!-- Inclure Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<h2>Inscription</h2>
+<form id="signup-form">
+  <input type="text" id="nom" placeholder="Nom" required><br><br>
+  <input type="text" id="prenom" placeholder="Prénom" required><br><br>
+  <input type="date" id="dateNaissance" required><br><br>
+  <input type="email" id="email" placeholder="Email" required><br><br>
+  <input type="password" id="password" placeholder="Mot de passe" required><br><br>
+  <button type="submit">S'inscrire</button>
+</form>
+
+<script>
+  // Config Firebase ici
+  const firebaseConfig = {
+    apiKey: "TA_API_KEY",
+    authDomain: "TON_PROJET.firebaseapp.com",
+    projectId: "TON_PROJET",
+    // ...
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const signupForm = document.getElementById("signup-form");
+
+  signupForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const nom = document.getElementById("nom").value.trim();
+    const prenom = document.getElementById("prenom").value.trim();
+    const dateNaissance = document.getElementById("dateNaissance").value;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    // Créer un utilisateur dans Firebase Authentication
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+
+        // Enregistrer les infos supplémentaires dans Firestore
+        return db.collection("users").doc(user.uid).set({
+          nom: nom,
+          prenom: prenom,
+          dateNaissance: dateNaissance,
+          email: email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      })
+      .then(() => {
+        alert("Inscription réussie !");
+        signupForm.reset();
+      })
+      .catch((error) => {
+        alert("Erreur : " + error.message);
+      });
+  });
+</script>
+
+</body>
+</html>
