@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page d'inscription Administrateur</title>
+    <!-- Lien vers le fichier CSS pour le style -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Importation des SDK Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-auth.js"></script>
+</head>
+<body>
+    <!-- Conteneur principal pour la page d'inscription -->
+    <div class="container">
+        <h2>Créer un compte Administrateur</h2>
+        <!-- Formulaire d'inscription -->
+        <form id="signupForm">
+            <!-- Champ pour l'email -->
+            <input type="email" id="email" placeholder="Email" required>
+            <!-- Champ pour le mot de passe -->
+            <input type="password" id="password" placeholder="Mot de passe" required>
+            <!-- Bouton pour soumettre le formulaire -->
+            <button type="submit">S'inscrire</button>
+        </form>
+        <!-- Zone pour afficher les messages d'erreur -->
+        <p id="error-message"></p>
+    </div>
+
+    <!-- Lien vers le fichier JavaScript -->
+    <script src="administrateurs.js"></script>
+</body>
+</html>
