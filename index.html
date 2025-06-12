@@ -19,7 +19,7 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
-      color: #e3f2fd; /* Couleur texte claire par défaut */
+      color: #e3f2fd;
     }
     .container {
       border-radius: 16px;
@@ -31,7 +31,6 @@
         0 8px 30px rgba(25, 118, 210, 0.4);
       text-align: center;
       position: relative;
-      /* Pas de background pour respecter la consigne */
     }
     /* Logo */
     .logo {
@@ -61,7 +60,8 @@
       margin-bottom: 10px;
       font-size: 14px;
       color: #bbdefb;
-      user-select: none;
+      -webkit-user-select: none; /* Safari/iOS support */
+      user-select: none; /* Standard property */
     }
     input {
       width: 100%;
@@ -74,7 +74,8 @@
       color: #0d47a1;
       background: rgba(255, 255, 255, 0.9);
       font-weight: 600;
-      user-select: text;
+      -webkit-user-select: text; /* Safari/iOS support */
+      user-select: text; /* Standard property */
     }
     input::placeholder {
       color: #90a4ae;
@@ -98,7 +99,8 @@
       cursor: pointer;
       box-shadow: 0 8px 15px rgba(25, 118, 210, 0.6);
       transition: background 0.3s ease, transform 0.2s ease;
-      user-select: none;
+      -webkit-user-select: none; /* Safari/iOS support */
+      user-select: none; /* Standard property */
     }
     button:hover {
       background: linear-gradient(135deg, #1976d2, #64b5f6);
@@ -113,7 +115,8 @@
       font-size: 14px;
       font-weight: 600;
       min-height: 20px;
-      user-select: none;
+      -webkit-user-select: none; /* Safari/iOS support */
+      user-select: none; /* Standard property */
     }
     /* Responsive */
     @media (max-width: 450px) {
@@ -161,32 +164,57 @@
     </form>
     <div id="error-message" class="error-message" role="alert" aria-live="polite"></div>
   </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
   <script>
-    const correctEmail = "ibrahimcongo802@gmail.com";
-    const correctPassword = "motdepasse123";
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBod05536NTK6dGt8nnJHzXRCaBkeQfr3Q",
+      authDomain: "cinfinance.firebaseapp.com",
+      databaseURL: "https://cinfinance-default-rtdb.firebaseio.com",
+      projectId: "163080007092",
+      storageBucket: "cinfinance.appspot.com", // Complétez si nécessaire
+      messagingSenderId: "123456789012", // Complétez si nécessaire
+      appId: "1:123456789012:web:abcdef1234567890", // Complétez si nécessaire
+    };
+
+    // Initialisation de Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
     const form = document.getElementById("login-form");
     const errorMessage = document.getElementById("error-message");
+
     form.addEventListener("submit", function (event) {
       event.preventDefault();
+
       const email = form.email.value.trim();
       const password = form.password.value.trim();
+
+      // Validation des champs
       if (!email || !password) {
         errorMessage.textContent = "Veuillez remplir tous les champs.";
         return;
       }
+
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) {
         errorMessage.textContent = "Veuillez entrer une adresse e-mail valide.";
         return;
       }
-      if (email === correctEmail && password === correctPassword) {
-        errorMessage.textContent = "";
-        localStorage.setItem("email", email);
-        // Changement ici : chemin relatif pour éviter l'erreur 404
-        window.location.href = "mon-app-virement/start.html";
-      } else {
-        errorMessage.textContent = "Informations incorrectes. Connexion échouée.";
-      }
+
+      // Authentification avec Firebase
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          errorMessage.textContent = "";  // Réinitialiser le message d'erreur
+          window.location.href = "mon-app-virement/start.html";  // Redirection en cas de succès
+        })
+        .catch((error) => {
+          errorMessage.textContent = "Informations incorrectes. Connexion échouée.";
+        });
     });
   </script>
 </body>

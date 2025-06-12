@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Page Inscription</title>
+
+  <!-- Firebase (compat for easier use) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <style>
+    /* Styles identiques à avant */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #f0f0f0;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      width: 350px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #ffe;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="date"] {
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      transition: background-color 0.3s, color 0.3s;
+      color: #333;
+      -webkit-user-select: none; /* Added for Safari compatibility */
+      user-select: none;         /* Added for general compatibility */
+    }
+
+    input::placeholder {
+      color: #999;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="date"]:focus {
+      background-color: #fff;
+      color: #333;
+      box-shadow: 0 0 5px #764ba2;
+    }
+
+    button {
+      padding: 12px;
+      background: #764ba2;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(118, 75, 162, 0.6);
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background: #5a3585;
+    }
+
+    .message {
+      margin-bottom: 16px;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+
+    .message.error {
+      background-color: rgba(255, 80, 80, 0.8);
+      color: #440000;
+    }
+
+    .message.success {
+      background-color: rgba(80, 255, 128, 0.8);
+      color: #004400;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Inscription</h2>
+
+    <div id="msg" class="message"></div>
+
+    <form id="signup-form" autocomplete="off">
+      <label for="nom">Nom</label>
+      <input type="text" id="nom" placeholder="Nom" required />
+      
+      <label for="prenom">Prénom</label>
+      <input type="text" id="prenom" placeholder="Prénom" required />
+      
+      <label for="dateNaissance">Date de naissance</label>
+      <input type="date" id="dateNaissance" required max="" />
+      
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Email" required />
+      
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" placeholder="Mot de passe" required minlength="6" />
+      
+      <button type="submit">S'inscrire</button>
+    </form>
+  </div>
+
+  <script>
+    // Limiter dateNaissance au max aujourd'hui
+    document.getElementById('dateNaissance').max = new Date().toISOString().split("T")[0];
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBod05536NTK6dGt8nnJHzXRCaBkeQfr3Q",
+      authDomain: "cinfinance.firebaseapp.com",
+      databaseURL: "https://cinfinance-default-rtdb.firebaseio.com",
+      projectId: "163080007092",
+      storageBucket: "YOUR_STORAGE_BUCKET", // Complétez si besoin
+      messagingSenderId: "YOUR_SENDER_ID",  // Complétez si besoin
+      appId: "YOUR_APP_ID"                   // Complétez si besoin
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    const signupForm = document.getElementById("signup-form");
+    const msgBox = document.getElementById("msg");
+
+    function showMessage(text, type = "error") {
+      msgBox.textContent = text;
+      msgBox.className = "message " + type;
+      msgBox.style.display = "block";
+
+      if (type === "success") {
+        setTimeout(() => {
+          msgBox.style.display = "none";
+        }, 4000);
+      }
+    }
+
+    signupForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      msgBox.style.display = "none";
+
+      const nom = document.getElementById("nom").value.trim();
+      const prenom = document.getElementById("prenom").value.trim();
+      const dateNaissance = document.getElementById("dateNaissance").value;
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!nom || !prenom || !dateNaissance || !email || !password) {
+        showMessage("Veuillez remplir tous les champs.");
+        return;
+      }
+
+      if (password.length < 6) {
+        showMessage("Le mot de passe doit contenir au moins 6 caractères.");
+        return;
+      }
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          // Stockage des infos supplémentaires dans Realtime Database sous "users/user.uid"
+          return database.ref('users/' + user.uid).set({
+            nom: nom,
+            prenom: prenom,
+            dateNaissance: dateNaissance,
+            email: email,
+            createdAt: new Date().toISOString()
+          });
+        })
+        .then(() => {
+          showMessage("Inscription réussie !", "success");
+          signupForm.reset();
+        })
+        .catch(error => {
+          showMessage("Erreur : " + error.message);
+        });
+    });
+  </script>
+
+</body>
+</html>
